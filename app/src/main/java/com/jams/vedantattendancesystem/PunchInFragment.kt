@@ -1,31 +1,52 @@
 package com.jams.vedantattendancesystem
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.fragment.app.Fragment
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PunchInFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PunchInFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    val pic_id = 123
+    val REQUEST_IMAGE_CAPTURE = 1
+    lateinit var bitmap: Bitmap
+    lateinit var locationEditext: EditText
+    lateinit var Camera: Button
+    lateinit var PunchInNowBtn:android.widget.Button
+    lateinit var imageView: ImageView
+    lateinit var location: Location
+    var describeContents = 0.0
+    lateinit var addresses: List<Address>
+    lateinit var geocoder: Geocoder
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private val CAMERA_REQUEST = 1888
+    private val MY_CAMERA_PERMISSION_CODE = 100
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+
         }
     }
 
@@ -33,27 +54,46 @@ class PunchInFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val view : View = inflater.inflate(R.layout.fragment_punch_in, container, false)
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_punch_in, container, false)
+
+        Camera = view.findViewById<Button>(R.id.CameraBtn)
+        imageView = view.findViewById<ImageView>(R.id.imageView)
+
+        locationEditext = view.findViewById<EditText>(R.id.LocationEditText)
+        val locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf<String>(
+                    Manifest.permission.ACCESS_FINE_LOCATION, Man,
+                    Camera.setOnClickListener {
+                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions(
+                                arrayOf(Manifest.permission.CAMERA),
+                                com.jams.vedantattendancesystem.PunchInFragment.MY_CAMERA_PERMISSION_CODE
+                            )
+                        } else {
+                            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                            startActivityForResult(
+                                cameraIntent,
+                                com.jams.vedantattendancesystem.PunchInFragment.pic_id
+                            )
+                        }
+                    })
+            )
+
+
+        }
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PunchInFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PunchInFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
+
 }
